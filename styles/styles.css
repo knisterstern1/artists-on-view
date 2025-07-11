@@ -1,0 +1,53 @@
+@font-face{
+    font-family: 'MaisonNeue';
+    src:
+    url('./font/MaisonNeue-Bold.woff2') format('woff2'),
+    url('./font/MaisonNeue-Bold.woff') format('woff');
+    font-weight:700;
+    font-style:normal;
+    }
+@font-face{
+    font-family: 'MaisonNeue';
+    src:
+    url('./font/MaisonNeue-Light.woff2') format('woff2'),
+    url('./font/MaisonNeue-Light.woff') format('woff');
+    font-weight:300;
+    font-style:normal;
+    }
+html{
+    font-size: 24px;
+}
+body{
+    margin:0;
+    font-family: 'MaisonNeue',Arial,Helvetica,Helvetica Neue,sans-serif;
+}
+#content{
+    box-sizing: border-box;
+    height: auto;
+    display: block;
+    margin: auto;
+    padding:100px 20px 0 20px;
+    width:100vw;
+}
+h1{
+    font-weight:700;
+    font-size:2rem;
+}
+p{
+    font-weight:300;
+    letter-spacing: .015em;
+    line-height: 30px;
+    font-size:1rem;
+}
+@media only screen and (max-width: 800px) {
+  p{
+      font-size: 0.7rem;      
+    }
+}
+@media only screen and (min-width: 1199px) {
+  #content {
+      padding:150px 20px 0 20px;
+      width:950px;
+  }
+}
+
