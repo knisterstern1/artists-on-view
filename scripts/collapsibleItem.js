@@ -16,6 +16,9 @@ export class CollapsibleItem extends LitElement {
    .active:after {
       content: '\\2796';
    }
+   .association {
+      font-size: 80%;
+   }
   td.location { padding-left: 20px; }
   .hidden { display: none }`;
 
@@ -31,6 +34,16 @@ export class CollapsibleItem extends LitElement {
   }
 
   artistInfo(artist){
+     const associations = [];
+     artist.Objekte.filter(obj =>obj.Association.split(';').filter(assoc =>assoc.startsWith(artist.ID)).length > 0).forEach(obj =>{
+         obj.Association.split(';').filter(assoc =>assoc.startsWith(artist.ID)).forEach(assocStr =>{
+            const assoc = assocStr.substring(assocStr.indexOf('_')+1);
+            if (!associations.includes(assoc)){
+               associations.push(assoc);
+            }
+         });
+     });
+     artist.Association = (associations.length == artist.Objekte.length) ? "[" + associations.join(" ") + "]" : "";
      if (artist.Lebensdaten) {
          return artist.Vorname + " " + artist.Name + " (" + artist.Lebensdaten + ")"
       }
@@ -45,15 +58,21 @@ export class CollapsibleItem extends LitElement {
          header.classList.toggle('active')
       }
   }
-
+  __getAssoc(artist, obj){
+      if (obj.Association == '' || (artist.Association && artist.Association != '')) {
+         return ''
+      }
+      const artistAssociations = obj.Association.split(';').filter(assoc =>assoc.startsWith(artist.ID)).map(assocStr =>assocStr.substring(assocStr.indexOf('_')+1))
+      return (artistAssociations.length > 0) ? "[" + artistAssociations.join(" ") + "]" : "";
+  }
   render() {
     if (this.artist) {
       return html`
       <div class="accordion" @click=${this.__itemClicked}>
-         <h3 id="header" class="accordion-header">${this.artistInfo(this.artist)}</h3>
+         <h3 id="header" class="accordion-header">${this.artistInfo(this.artist)} <span class="association">${this.artist.Association}</span></h3>
          <div id="hiddenItem" class="hidden">
             <table> 
-            ${this.artist.Objekte.map(obj => html`<tr><td>&quot;${obj.Titles}&quot;</td><td class="location">${obj.Location}</td></tr>`)}
+            ${this.artist.Objekte.map(obj => html`<tr><td>&quot;${obj.Titles}&quot;</td><td class="date">(${obj.Date})</td><td class="location">${obj.Location}</td></tr>`)}
             </table>
          </div>
       </div>`;
@@ -63,8 +82,8 @@ export class CollapsibleItem extends LitElement {
          <h3 id="header" class="accordion-header">${this.location.location}</h3>
          <div id="hiddenItem" class="hidden">
            ${this.location.artists.map(artist =>
-              html`<h4>${this.artistInfo(artist)}</h4>
-                   ${artist.Objekte.map(obj => html`<div>&quot;${obj.Titles}&quot;</div>`)}
+              html`<h4>${this.artistInfo(artist)} <span class="association">${artist.Association}</span></h4>
+                   ${artist.Objekte.map(obj => html`<div>&quot;${obj.Titles}&quot; <span class="date">(${obj.Date})</span> <span class="association">${this.__getAssoc(artist, obj)}</span></div>`)}
                   `)}     
          </div>
       </div>`;
