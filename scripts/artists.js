@@ -163,6 +163,9 @@ export class ArtistsOnView extends LitElement {
      }
      return '????'
   }
+  __printTestStatus() {
+	return (this.data.isTestData) ? 'TESTDATEN' : ''; 
+}
 
   render() {
     if (this.data.status && this.data.status == 'success') {
@@ -179,7 +182,7 @@ export class ArtistsOnView extends LitElement {
                                           value=${modus.type} 
                                           ?checked=${this.modus.type == modus.type}> 
                                           <label for=${modus.label}>${modus.placeholder}</label>`)}
-            <div class="status">Letzte &Auml;nderung: ${this.__lastUpdate()}</div>
+            <div class="status">Letzte &Auml;nderung: ${this.__lastUpdate()} <span class="testData">${this.__printTestStatus()}</span></div>
          </div>
       </div>
       <p>${this.__renderContent()}</p>`;
