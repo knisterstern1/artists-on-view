@@ -142,7 +142,7 @@ export class ArtistsOnView extends LitElement {
          this.showNewestOnly = !this.showNewestOnly;
          let textInput = this.renderRoot?.querySelector(e.target.dataset.target)
          if (textInput && textInput.value) {
-            this.getData(textInput.value)
+            this.getData(textInput.value.toUpperCase())
          } else {
             this.getData();
          }
@@ -150,18 +150,25 @@ export class ArtistsOnView extends LitElement {
   }
   __cancel(e) {
       if (e.target && e.target.dataset.target){
-         this.__resetInput(e.target)
+         this.__resetInput(e, true)
       }
       this.getData();
   }
-  __resetInput(e) {
-     const button = this.renderRoot?.querySelector(e.target.dataset.target)
+  __resetInput(e, sourceIsButton) {
+     let input = null;
+     let button = null
+     if (sourceIsButton) {
+        button = e.target;
+        input = this.renderRoot?.querySelector(e.target.dataset.target) 
+     } else {
+         button = this.renderRoot?.querySelector(e.target.dataset.target)
+         input = this.renderRoot?.querySelector(button.dataset.target)
+     }
      if (button) {
          button.classList.add('hidden')
-         const input = this.renderRoot?.querySelector(button.dataset.target)
-         if (input) {
-            input.value = '';
-         }
+     }
+     if (input) {
+         input.value = '';
      }
   }
   __changeModus(e) {
