@@ -1,6 +1,7 @@
 import {html, css, LitElement} from 'https://esm.run/lit';
 import './collapsibleItem.js'
 
+const NEW_IS_LESS_THAN = 1000*60*60*24*30
 const BUILDINGS = {
    HB: 0,
    NB: 1,
@@ -20,6 +21,10 @@ export class ArtistsOnView extends LitElement {
   div.navi { display: inline; }
   div.footer { display: inline-flex; }
   label, div.status { font-size: 11px;}
+  label.info { 
+      text-decoration-line: underline;
+      text-decoration-style: dashed;
+  }
   div.status { margin-left: 50px;}
   button { border: none; 
       font-size: 16px;
@@ -38,13 +43,15 @@ export class ArtistsOnView extends LitElement {
 
   static properties = {
     data: {type: Object},
-    modus: {type: Object}
+    modus: {type: Object},
+    showNewestOnly: {type: Boolean}
   };
 
   constructor() {
     super();
     this.data = {};
-    this.modus = MODUS[0]
+    this.modus = MODUS[0];
+    this.showNewestOnly = false;
     this.getData();
   }
   getData(filterKey) {
@@ -54,12 +61,22 @@ export class ArtistsOnView extends LitElement {
          }
          return response.json();  
       }).then(data =>{
+         if (this.showNewestOnly) {
+            data.artists.forEach(artist =>{
+               artist.Objekte = artist.Objekte.filter(obj =>this.__isLocationNew(obj.From));   
+            });
+            data.artists = data.artists.filter(item =>item.Objekte.length > 0)
+         }
          if (filterKey && filterKey != '' && this.modus.type == MODI.ARTIST) {
             data.artists = data.artists.filter(item =>item.Name.toUpperCase().startsWith(filterKey) || item.Vorname.toUpperCase().startsWith(filterKey))
          }
          data.locations = this.__createLocations(data.artists, filterKey, (this.modus.type == MODI.LOCATION));
          this.data = data;
       }).catch(error => console.error('Failed to fetch data:', error));
+  }
+  __isLocationNew(dateString) {
+      let dateArray = dateString.split(".");
+      return (Date.now() - Date.parse(dateArray[2] + "-" + dateArray[1] + "-" + dateArray[0])) < NEW_IS_LESS_THAN
   }
   __createLocations(artists, filterKey, isLocationModus) {
       let locations = {};
@@ -120,25 +137,36 @@ export class ArtistsOnView extends LitElement {
          this.getData(e.target.value.toUpperCase())
      }
   }
+  __filterNewest(e) {
+      if (e.target && e.target.dataset.target){
+         this.showNewestOnly = !this.showNewestOnly;
+         let textInput = this.renderRoot?.querySelector(e.target.dataset.target)
+         if (textInput && textInput.value) {
+            this.getData(textInput.value)
+         } else {
+            this.getData();
+         }
+      }
+  }
   __cancel(e) {
       if (e.target && e.target.dataset.target){
          this.__resetInput(e.target)
       }
       this.getData();
   }
-  __resetInput(button) {
-      button.classList.add('hidden')
-      const input = this.renderRoot?.querySelector(button.dataset.target)
-      if (input) {
-         input.value = '';
-      }
+  __resetInput(e) {
+     const button = this.renderRoot?.querySelector(e.target.dataset.target)
+     if (button) {
+         button.classList.add('hidden')
+         const input = this.renderRoot?.querySelector(button.dataset.target)
+         if (input) {
+            input.value = '';
+         }
+     }
   }
   __changeModus(e) {
      this.modus = MODUS[e.target.value];
-     const button = this.renderRoot?.querySelector(e.target.dataset.target)
-     if (button) {
-        this.__resetInput(button);
-     }
+     this.__resetInput(e);
   }
   __renderContent() {
       return (this.modus.type == MODI.ARTIST) 
@@ -165,7 +193,7 @@ export class ArtistsOnView extends LitElement {
   }
   __printTestStatus() {
 	return (this.data.isTestData) ? 'TESTDATEN' : ''; 
-}
+  }
 
   render() {
     if (this.data.status && this.data.status == 'success') {
@@ -180,8 +208,14 @@ export class ArtistsOnView extends LitElement {
                                           id=${modus.label} 
                                           name="modus" 
                                           value=${modus.type} 
-                                          ?checked=${this.modus.type == modus.type}> 
+                                          .checked=${this.modus.type == modus.type}> 
                                           <label for=${modus.label}>${modus.placeholder}</label>`)}
+                                          <input data-target="#nameFilter"
+                                                 type="radio" 
+                                                 id="newest" 
+                                                 @click=${this.__filterNewest} 
+                                                 .checked=${this.showNewestOnly}>
+                                          <label for="newest" title="Weniger als ein Monat ausgestellt" class="info">Neu gezeigt</label>
             <div class="status">Letzte &Auml;nderung: ${this.__lastUpdate()} <span class="testData">${this.__printTestStatus()}</span></div>
          </div>
       </div>
