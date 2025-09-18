@@ -177,7 +177,7 @@ export class ArtistsOnView extends LitElement {
   }
   __renderContent() {
       return (this.modus.type == MODI.ARTIST) 
-      ?   html` ${this.data.artists.map(artist => html`<collapsible-item .artist="${artist}"></collapsible-item>`)}`
+      ?   html` ${this.data.artists.filter(artist =>artist.Objekte.length > 0).map(artist => html`<collapsible-item .artist="${artist}"></collapsible-item>`)}`
       :   html` ${this.data.locations.map(location => html`<collapsible-item .location="${location}"></collapsible-item>`)}`
   }
   __lastUpdate() {
