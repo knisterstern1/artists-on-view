@@ -79,7 +79,7 @@ export class CollapsibleItem extends LitElement {
     } else if (this.location) {
       return html`
       <div class="accordion" @click=${this.__itemClicked}>
-         <h3 id="header" class="accordion-header">${this.location.location}</h3>
+         <h3 id="header" class="accordion-header" data-sort-lnu=${this.location.sortLnu}>${this.location.location}</h3>
          <div id="hiddenItem" class="hidden">
            ${this.location.artists.map(artist =>
               html`<h4>${this.artistInfo(artist)} <span class="association">${artist.Association}</span></h4>
