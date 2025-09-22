@@ -1,4 +1,5 @@
 import {html, css, LitElement} from 'https://esm.run/lit';
+import {getSammlungOnlineLink} from './functions.js';
 
 export class CollapsibleItem extends LitElement {
   static styles = css`
@@ -65,6 +66,13 @@ export class CollapsibleItem extends LitElement {
       const artistAssociations = obj.Association.split(';').filter(assoc =>assoc.startsWith(artist.ID)).map(assocStr =>assocStr.substring(assocStr.indexOf('_')+1))
       return (artistAssociations.length > 0) ? "[" + artistAssociations.join(" ") + "]" : "";
   }
+  __getLink(obj) {
+      if (obj.Online == 'true') {
+         let link = getSammlungOnlineLink(obj);
+         return html`<a href=${link} target="_new" title="Sammlung Online"><img src="/styles/open-link.svg" width="20px" height="20px"></a>`
+      }
+      return ''
+  }
   render() {
     if (this.artist) {
       return html`
@@ -72,7 +80,7 @@ export class CollapsibleItem extends LitElement {
          <h3 id="header" class="accordion-header">${this.artistInfo(this.artist)} <span class="association">${this.artist.Association}</span></h3>
          <div id="hiddenItem" class="hidden">
             <table> 
-            ${this.artist.Objekte.map(obj => html`<tr><td>&quot;${obj.Titles}&quot;</td><td class="date">(${obj.Date})</td><td class="location">${obj.Location}</td></tr>`)}
+            ${this.artist.Objekte.map(obj => html`<tr><td>&quot;${obj.Titles}&quot;</td><td class="date">(${obj.Date})</td><td class="location">${obj.Location}</td><td>${this.__getLink(obj)}</td></tr>`)}
             </table>
          </div>
       </div>`;
@@ -83,7 +91,7 @@ export class CollapsibleItem extends LitElement {
          <div id="hiddenItem" class="hidden">
            ${this.location.artists.map(artist =>
               html`<h4>${this.artistInfo(artist)} <span class="association">${artist.Association}</span></h4>
-                   ${artist.Objekte.map(obj => html`<div>&quot;${obj.Titles}&quot; <span class="date">(${obj.Date})</span> <span class="association">${this.__getAssoc(artist, obj)}</span></div>`)}
+                   ${artist.Objekte.map(obj => html`<div>&quot;${obj.Titles}&quot; <span class="date">(${obj.Date})</span> <span class="association">${this.__getAssoc(artist, obj)}</span> <span>${this.__getLink(obj)}</span></div>`)}
                   `)}     
          </div>
       </div>`;

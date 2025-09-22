@@ -28,6 +28,11 @@ const BUILDINGS = {
    NB2: "3",
    GWFoyer: "1"
 }
+const SAMMLUNG_ONLINE = {
+   link: "https://sammlungonline.kunstmuseumbasel.ch/eMP/eMuseumPlus",
+   options: { service: 'ExternalInterface', module: 'collection', viewType: 'detailView' },
+   objIDKey: 'objectId'
+}
 export function createLocations(artists, filterKey, isLocationModus) {
       let locations = {};
       if (isLocationModus && filterKey && filterKey != '') {
@@ -60,6 +65,13 @@ export function createLocations(artists, filterKey, isLocationModus) {
          locationArray.push({ location: key, artists: value, sortLnu: __getSortLnu(key) })
       }
       return locationArray.sort((a, b) => (a.sortLnu < b.sortLnu) ? -1 : 1);
+}
+export function getSammlungOnlineLink(obj) {
+   let options = [ SAMMLUNG_ONLINE.objIDKey + '=' + obj.ObjID ];
+   for (const [key, value] of Object.entries(SAMMLUNG_ONLINE.options)){
+      options.push(key + "=" + value);
+   }
+   return SAMMLUNG_ONLINE.link + '?' + options.join('&');
 }
 export function filterArtist(artist, objLocation) {
       let clonedArtist = structuredClone(artist)
